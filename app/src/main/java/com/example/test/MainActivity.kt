@@ -4,13 +4,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +27,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun MainScreen() {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -38,7 +37,7 @@ fun MainScreen() {
     var letterIndex by remember { mutableStateOf(0) }
     var lastPressTime by remember { mutableStateOf(0L) }
 
-    val buttonSize = screenWidth / 5 // Товчлууруудыг багтаахын тулд хэмжээ өөрчлөв
+    val buttonSize = screenWidth / 5
 
     val buttonMap = mapOf(
         "1" to listOf("А", "Б", "В", "Г", "Д", "1", "9"),
@@ -79,20 +78,7 @@ fun MainScreen() {
                             lastPressTime = currentTime
                         },
                         modifier = Modifier
-                            .size(buttonSize)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        currentButton = key
-                                        hoveredLetters = letters
-                                        letterIndex = 0
-                                        tryAwaitRelease()
-                                        text += letters[letterIndex]
-                                        currentButton = null
-                                        hoveredLetters = emptyList()
-                                    }
-                                )
-                            },
+                            .size(buttonSize * 1.2f),
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2C3E50))
                     ) {
@@ -108,12 +94,61 @@ fun MainScreen() {
             }
         }
 
+        // Text Field
         OutlinedTextField(
             value = text,
             onValueChange = {},
             label = { Text("Enter text") },
             modifier = Modifier.padding(16.dp)
         )
+
+        // Backspace & Read Button (Placed Side by Side)
+        Row(
+            modifier = Modifier.padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            // Backspace Button
+            Button(
+                onClick = {
+                    if (text.isNotEmpty()) {
+                        text = text.dropLast(1)
+                    }
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(buttonSize * 1.2f),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) {
+                Text(
+                    text = "←", // Backspace icon
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // Read Button
+            Button(
+                onClick = {
+                    println("Reading text: $text") // Replace this with Text-to-Speech if needed
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(buttonSize * 1.2f),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+            ) {
+                Text(
+                    text = "🔊", // Speaker icon for Read
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
@@ -137,28 +172,12 @@ fun MainScreen() {
                             }
                             lastPressTime = currentTime
                         },
-
                         modifier = Modifier
-                            .size(buttonSize * 1.2f)  // Increase size by 1.5x
-                            .height(150.dp)  // Increase height to 150.dp
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        currentButton = key
-                                        hoveredLetters = letters
-                                        letterIndex = 0
-                                        tryAwaitRelease()
-                                        text += letters[letterIndex]
-                                        currentButton = null
-                                        hoveredLetters = emptyList()
-                                    }
-                                )
-                            },
-
+                            .size(buttonSize * 1.2f)
+                            .height(150.dp),
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2C3E50))
-                    )
-                    {
+                    ) {
                         Text(
                             text = letters[0],
                             fontSize = 20.sp,
